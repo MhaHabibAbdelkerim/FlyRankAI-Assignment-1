@@ -1,4 +1,8 @@
 const express = require("express");
+const swaggerUi = require("swagger-ui-express");
+const YAML = require("yamljs");
+
+const swaggerDocument = YAML.load("./openapi.yaml");
 
 const app = express();
 
@@ -122,6 +126,8 @@ app.delete("/tasks/:id", (req, res) => {
 
     res.status(204).send();
 });
+
+app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
