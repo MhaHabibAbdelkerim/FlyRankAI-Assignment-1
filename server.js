@@ -129,20 +129,38 @@ app.post("/tasks", (req, res) => {
     const { title } = req.body;
 
     if (!title || title.trim() === "") {
+
         return res.status(400).json({
             error: "Title is required"
         });
+
     }
 
-    const newTask = {
-        id: tasks.length + 1,
-        title: title,
-        done: false
-    };
+    db.run(
 
-    tasks.push(newTask);
+        "INSERT INTO tasks(title, done) VALUES(?, ?)",
 
-    res.status(201).json(newTask);
+        [title, 0],
+
+        function (err) {
+
+            if (err) {
+
+                return res.status(500).json({
+                    error: err.message
+                });
+
+            }
+
+            res.status(201).json({
+
+                id: this.lastID,
+                title,
+                done: false
+
+            });
+
+        });
 
 });
 
