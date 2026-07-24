@@ -27,14 +27,14 @@ db.serialize(() => {
     `);
 
     db.get("SELECT COUNT(*) AS count FROM tasks", (err, row) => {
-
+    
         if (err) {
             console.error(err.message);
             return;
         }
 
         if (row.count === 0) {
-
+    
             db.run(
                 "INSERT INTO tasks (title, done) VALUES (?, ?)",
                 ["Finish Assignment", 0]
@@ -59,23 +59,6 @@ db.serialize(() => {
 
 const PORT = 3000;
 
-const tasks = [
-    {
-        id: 1,
-        title: "Finish Assignment",
-        done: false
-    },
-    {
-        id: 2,
-        title: "Study Express",
-        done: true
-    },
-    {
-        id: 3,
-        title: "Practice JavaScript",
-        done: false
-    }
-];
 
 app.get("/", (req, res) => {
     res.json({
@@ -92,22 +75,53 @@ app.get("/health", (req, res) => {
 });
 
 app.get("/tasks", (req, res) => {
-    res.json(tasks);
+
+    const sql = "SELECT * FROM tasks";
+
+    db.all(sql, [], (err, rows) => {
+
+        if (err) {
+            return res.status(500).json({
+                error: err.message
+            });
+        }
+
+        rows.forEach(task => {
+            task.done = Boolean(task.done);
+        });
+
+        res.json(rows);
+
+    });
+
 });
 
 app.get("/tasks/:id", (req, res) => {
 
     const id = parseInt(req.params.id);
 
-    const task = tasks.find(task => task.id === id);
+    const sql = "SELECT * FROM tasks WHERE id = ?";
 
-    if (!task) {
-        return res.status(404).json({
-            error: `Task ${id} not found`
-        });
-    }
+    db.get(sql, [id], (err, row) => {
 
-    res.json(task);
+        if (err) {
+            return res.status(500).json({
+                error: err.message
+            });
+        }
+
+        if (!row) {
+            return res.status(404).json({
+                error: `Task ${id} not found`
+            });
+        }
+
+        row.done = Boolean(row.done);
+
+        res.json(row);
+
+    });
+
 });
 
 app.post("/tasks", (req, res) => {
