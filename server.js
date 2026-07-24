@@ -165,15 +165,8 @@ app.post("/tasks", (req, res) => {
 });
 
 app.put("/tasks/:id", (req, res) => {
+
     const id = parseInt(req.params.id);
-
-    const task = tasks.find(task => task.id === id);
-
-    if (!task) {
-        return res.status(404).json({
-            error: `Task ${id} not found`
-        });
-    }
 
     const { title, done } = req.body;
 
@@ -186,26 +179,83 @@ app.put("/tasks/:id", (req, res) => {
         });
     }
 
-    if (title !== undefined) task.title = title;
-    if (done !== undefined) task.done = done;
+    db.get(
+        "SELECT * FROM tasks WHERE id = ?",
+        [id],
+        (err, row) => {
 
-    res.json(task);
+            if (err) {
+                return res.status(500).json({
+                    error: err.message
+                });
+            }
+
+            if (!row) {
+                return res.status(404).json({
+                    error: `Task ${id} not found`
+                });
+            }
+
+            const updatedTitle =
+                title !== undefined ? title : row.title;
+
+            const updatedDone =
+                done !== undefined ? done : Boolean(row.done);
+
+            db.run(
+                "UPDATE tasks SET title = ?, done = ? WHERE id = ?",
+                [
+                    updatedTitle,
+                    updatedDone ? 1 : 0,
+                    id
+                ],
+                function (err) {
+
+                    if (err) {
+                        return res.status(500).json({
+                            error: err.message
+                        });
+                    }
+
+                    res.json({
+                        id,
+                        title: updatedTitle,
+                        done: updatedDone
+                    });
+
+                });
+
+        });
+
 });
 
 app.delete("/tasks/:id", (req, res) => {
+
     const id = parseInt(req.params.id);
 
-    const index = tasks.findIndex(task => task.id === id);
+    db.run(
+        "DELETE FROM tasks WHERE id = ?",
+        [id],
+        function (err) {
 
-    if (index === -1) {
-        return res.status(404).json({
-            error: `Task ${id} not found`
+            if (err) {
+                return res.status(500).json({
+                    error: err.message
+                });
+            }
+
+            if (this.changes === 0) {
+
+                return res.status(404).json({
+                    error: `Task ${id} not found`
+                });
+
+            }
+
+            res.status(204).send();
+
         });
-    }
 
-    tasks.splice(index, 1);
-
-    res.status(204).send();
 });
 
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
