@@ -1,8 +1,22 @@
-# Task API
+# FlyRank AI Internship Assignment 1
 
-A simple CRUD API built with Node.js and Express for managing tasks.
+## Overview
 
-This project was created as part of the FlyRank AI Internship Week 2 Assignment.
+This project is a RESTful Task Management API built with **Node.js**, **Express.js**, and **SQLite**.
+
+The API allows users to create, read, update, and delete tasks (CRUD). The project demonstrates how a REST API can use a database for persistent storage while keeping the same API endpoints.
+
+---
+
+## Features
+
+- Create tasks
+- View all tasks
+- View a single task
+- Update tasks
+- Delete tasks
+- SQLite database for persistent storage
+- Swagger API documentation
 
 ---
 
@@ -10,38 +24,91 @@ This project was created as part of the FlyRank AI Internship Week 2 Assignment.
 
 - Node.js
 - Express.js
+- SQLite
+- sqlite3
 - Swagger UI
-- OpenAPI
+
+---
+
+## Why SQLite?
+
+SQLite was chosen because:
+
+- it is lightweight
+- it requires no database server
+- it stores all data inside a single file
+- it is simple to set up
+- it is perfect for learning backend development
+
+Unlike the previous assignment where tasks were stored in memory, SQLite keeps the data even after restarting the server.
+
+---
+
+## Project Structure
+
+```
+FlyRankAI-Assignment-1
+│
+├── server.js
+├── package.json
+├── package-lock.json
+├── openapi.yaml
+├── README.md
+├── tasks.db
+└── node_modules/
+```
+
+---
+
+## Database
+
+The application automatically creates:
+
+```
+tasks.db
+```
+
+inside the project folder.
+
+If the database or the tasks table does not exist, the application creates them automatically when the server starts.
 
 ---
 
 ## Installation
 
-Clone the repository:
+Clone the repository
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/FlyRankAI-Assignment-1.git
+git clone <your-repository-url>
 ```
 
-Install dependencies:
+Install dependencies
 
 ```bash
 npm install
 ```
 
-Run the server:
+---
+
+## Running the Project
+
+Start the server
 
 ```bash
 node server.js
 ```
 
-The API will be available at:
+The server runs on
 
 ```
 http://localhost:3000
 ```
 
-Swagger UI:
+---
+
+## API Documentation
+
+Swagger UI
 
 ```
 http://localhost:3000/docs
@@ -49,12 +116,58 @@ http://localhost:3000/docs
 
 ---
 
+## Example SQL Queries
+
+List every task
+
+```sql
+SELECT * FROM tasks;
+```
+
+Show completed tasks
+
+```sql
+SELECT * FROM tasks WHERE done = 1;
+```
+
+Count tasks
+
+```sql
+SELECT COUNT(*) FROM tasks;
+```
+
+Update every task
+
+```sql
+UPDATE tasks
+SET done = 1;
+```
+
+Delete completed tasks
+
+```sql
+DELETE FROM tasks
+WHERE done = 1;
+```
+
+---
+
+## Screenshot
+
+Insert a screenshot of DB Browser for SQLite showing the **tasks** table here.
+
+Example:
+
+```
+docs/database.png
+```
+
+---
+
 ## API Endpoints
 
 | Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | / | API information |
-| GET | /health | Health check |
+|---------|----------|-------------|
 | GET | /tasks | Get all tasks |
 | GET | /tasks/:id | Get one task |
 | POST | /tasks | Create a task |
@@ -63,42 +176,6 @@ http://localhost:3000/docs
 
 ---
 
-## Example Request
-
-```bash
-curl http://localhost:3000/tasks
-```
-
-Example Response
-
-```json
-[
-  {
-    "id":1,
-    "title":"Learn Express",
-    "done":true
-  }
-]
-```
-
----
-
-## Swagger UI
-
-Open:
-
-```
-http://localhost:3000/docs
-```
-
-to interact with the API using Swagger UI.
-
----
-
 ## Author
 
-Abdelkerim Mahamat Habib
-
-## Swagger Screenshot
-
-![Swagger UI](swagger.png)
+Created as part of the **FlyRank AI Backend Engineering Internship**.
