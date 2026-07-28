@@ -5,6 +5,9 @@ const YAML = require("yamljs");
 
 const swaggerDocument = YAML.load("./openapi.yaml");
 
+require("dotenv").config();
+const pool = require("./db/postgres");
+
 const app = express();
 app.use(express.json());
 
@@ -260,6 +263,41 @@ app.delete("/tasks/:id", (req, res) => {
 
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+async function initializeDatabase() {
+    try {
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS tasks (
+                id SERIAL PRIMARY KEY,
+                title TEXT NOT NULL,
+                done BOOLEAN NOT NULL DEFAULT FALSE
+            )
+        `);
+
+        const result = await pool.query(
+            "SELECT COUNT(*) FROM tasks"
+        );
+
+        if (parseInt(result.rows[0].count) === 0) {
+            await pool.query(`
+                INSERT INTO tasks (title, done)
+                VALUES
+                ('Finish Assignment', false),
+                ('Study Express', true),
+                ('Practice JavaScript', false)
+            `);
+
+            console.log("Sample tasks inserted.");
+        }
+
+        console.log("Database ready.");
+
+    } catch (err) {
+        console.error(err);
+    }
+}
+
+initializeDatabase().then(() => {
+    app.listen(PORT, () => {
+        console.log(`Server running on http://localhost:${PORT}`);
+    });
 });
