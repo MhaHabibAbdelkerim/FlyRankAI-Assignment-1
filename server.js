@@ -77,54 +77,39 @@ app.get("/health", (req, res) => {
     });
 });
 
-app.get("/tasks", (req, res) => {
+app.get("/tasks", async (req, res) => {
+    try {
+        const result = await pool.query(
+            "SELECT * FROM tasks ORDER BY id"
+        );
 
-    const sql = "SELECT * FROM tasks";
-
-    db.all(sql, [], (err, rows) => {
-
-        if (err) {
-            return res.status(500).json({
-                error: err.message
-            });
-        }
-
-        rows.forEach(task => {
-            task.done = Boolean(task.done);
-        });
-
-        res.json(rows);
-
-    });
-
+        res.json(result.rows);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Database error" });
+    }
 });
 
-app.get("/tasks/:id", (req, res) => {
-
+app.get("/tasks/:id", async (req, res) => {
     const id = parseInt(req.params.id);
 
-    const sql = "SELECT * FROM tasks WHERE id = ?";
+    try {
+        const result = await pool.query(
+            "SELECT * FROM tasks WHERE id = $1",
+            [id]
+        );
 
-    db.get(sql, [id], (err, row) => {
-
-        if (err) {
-            return res.status(500).json({
-                error: err.message
-            });
-        }
-
-        if (!row) {
+        if (result.rows.length === 0) {
             return res.status(404).json({
                 error: `Task ${id} not found`
             });
         }
 
-        row.done = Boolean(row.done);
-
-        res.json(row);
-
-    });
-
+        res.json(result.rows[0]);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Database error" });
+    }
 });
 
 app.post("/tasks", (req, res) => {
