@@ -2,21 +2,23 @@
 
 ## Overview
 
-This project is a RESTful Task Management API built with **Node.js**, **Express.js**, and **SQLite**.
+This project is a RESTful Task Management API built with **Node.js**, **Express.js**, and **PostgreSQL**. It provides a complete CRUD (Create, Read, Update, Delete) API for managing tasks while demonstrating backend development concepts such as database integration, containerization, environment configuration, and API documentation.
 
-The API allows users to create, read, update, and delete tasks (CRUD). The project demonstrates how a REST API can use a database for persistent storage while keeping the same API endpoints.
+The application is containerized using **Docker** and **Docker Compose**, allowing both the API and PostgreSQL database to run together with a single command.
 
 ---
 
 ## Features
 
-- Create tasks
-- View all tasks
-- View a single task
-- Update tasks
-- Delete tasks
-- SQLite database for persistent storage
-- Swagger API documentation
+- RESTful API built with Express.js
+- PostgreSQL database integration
+- Full CRUD operations for tasks
+- Automatic database and table initialization
+- Health check endpoint
+- Interactive Swagger API documentation
+- Docker & Docker Compose support
+- Environment variable configuration using `.env`
+- Persistent database storage using Docker volumes
 
 ---
 
@@ -24,91 +26,104 @@ The API allows users to create, read, update, and delete tasks (CRUD). The proje
 
 - Node.js
 - Express.js
-- SQLite
-- sqlite3
-- Swagger UI
-
----
-
-## Why SQLite?
-
-SQLite was chosen because:
-
-- it is lightweight
-- it requires no database server
-- it stores all data inside a single file
-- it is simple to set up
-- it is perfect for learning backend development
-
-Unlike the previous assignment where tasks were stored in memory, SQLite keeps the data even after restarting the server.
+- PostgreSQL
+- pg (PostgreSQL Node.js Driver)
+- Docker
+- Docker Compose
+- Swagger UI Express
+- OpenAPI (YAML)
+- dotenv
 
 ---
 
 ## Project Structure
 
-```
+```text
 FlyRankAI-Assignment-1
 │
-├── server.js
+├── db/
+│   └── postgres.js
+├── .dockerignore
+├── .env.example
+├── .gitignore
+├── docker-compose.yml
+├── Dockerfile
+├── openapi.yaml
 ├── package.json
 ├── package-lock.json
-├── openapi.yaml
 ├── README.md
-├── tasks.db
-└── node_modules/
+└── server.js
 ```
 
 ---
 
-## Database
+## Prerequisites
 
-The application automatically creates:
+Install the following before running the project:
 
-```
-tasks.db
-```
-
-inside the project folder.
-
-If the database or the tasks table does not exist, the application creates them automatically when the server starts.
+- Node.js (v18 or later)
+- Docker Desktop
+- Docker Compose
 
 ---
 
-## Installation
+## Environment Variables
 
-Clone the repository
+Create a `.env` file in the project root.
 
-```bash
-git clone <your-repository-url>
-```
-
-Install dependencies
-
-```bash
-npm install
+```env
+DB_HOST=db
+DB_PORT=5432
+DB_USER=postgres
+DB_PASSWORD=postgres
+DB_NAME=tasks
 ```
 
 ---
 
-## Running the Project
+## Running with Docker (Recommended)
 
-Start the server
+Build and start the API and PostgreSQL containers:
 
 ```bash
-node server.js
+docker compose up --build
 ```
 
-The server runs on
+The API will be available at:
 
 ```
 http://localhost:3000
 ```
 
+To stop the containers:
+
+```bash
+docker compose down
+```
+
+---
+
+## Running Locally
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Start the server:
+
+```bash
+node server.js
+```
+
+> Ensure PostgreSQL is running and the environment variables are configured correctly before starting the server.
+
 ---
 
 ## API Documentation
 
-Swagger UI
+Swagger UI is available at:
 
 ```
 http://localhost:3000/docs
@@ -116,66 +131,132 @@ http://localhost:3000/docs
 
 ---
 
-## Example SQL Queries
+## API Endpoints
 
-List every task
+| Method | Endpoint | Description |
+|----------|----------------|---------------------------|
+| GET | `/` | API information |
+| GET | `/health` | Health check |
+| GET | `/tasks` | Retrieve all tasks |
+| GET | `/tasks/:id` | Retrieve a single task |
+| POST | `/tasks` | Create a new task |
+| PUT | `/tasks/:id` | Update an existing task |
+| DELETE | `/tasks/:id` | Delete a task |
+
+---
+
+## Example Request
+
+### Create a Task
+
+**Request**
+
+```http
+POST /tasks
+Content-Type: application/json
+
+{
+  "title": "Learn Docker"
+}
+```
+
+**Response**
+
+```json
+{
+  "id": 6,
+  "title": "Learn Docker",
+  "done": false
+}
+```
+
+---
+
+## Database
+
+The application automatically:
+
+- Creates the `tasks` table if it does not already exist.
+- Inserts sample tasks when the table is empty.
+- Persists data using a Docker volume, ensuring tasks remain available after container restarts.
+
+---
+
+## Testing
+
+The API was successfully tested using:
+
+- curl
+- PowerShell `Invoke-RestMethod`
+- Swagger UI
+- PostgreSQL (`psql`)
+
+Verified functionality:
+
+- ✅ Retrieve all tasks
+- ✅ Retrieve a task by ID
+- ✅ Create a task
+- ✅ Update a task
+- ✅ Delete a task
+- ✅ Verify data persistence in PostgreSQL
+
+---
+
+## Sample SQL Queries
+
+Retrieve all tasks:
 
 ```sql
 SELECT * FROM tasks;
 ```
 
-Show completed tasks
+Retrieve completed tasks:
 
 ```sql
-SELECT * FROM tasks WHERE done = 1;
+SELECT * FROM tasks
+WHERE done = TRUE;
 ```
 
-Count tasks
+Count all tasks:
 
 ```sql
 SELECT COUNT(*) FROM tasks;
 ```
 
-Update every task
+---
 
-```sql
-UPDATE tasks
-SET done = 1;
-```
+## Screenshots
 
-Delete completed tasks
+### Swagger UI
 
-```sql
-DELETE FROM tasks
-WHERE done = 1;
-```
+![Swagger UI](docs/swagger.png)
+
+### API Testing
+
+![API Testing](docs/api-tests.png)
+
+### PostgreSQL Database
+
+![Database](docs/database.png)
+
 
 ---
 
-## Screenshot
+## Future Improvements
 
-Insert a screenshot of DB Browser for SQLite showing the **tasks** table here.
+Possible enhancements include:
 
-Example:
-
-```
-docs/database.png
-```
-
----
-
-## API Endpoints
-
-| Method | Endpoint | Description |
-|---------|----------|-------------|
-| GET | /tasks | Get all tasks |
-| GET | /tasks/:id | Get one task |
-| POST | /tasks | Create a task |
-| PUT | /tasks/:id | Update a task |
-| DELETE | /tasks/:id | Delete a task |
+- User authentication and authorization
+- Task filtering and searching
+- Pagination
+- Request validation
+- Unit and integration testing
+- CI/CD pipeline
 
 ---
 
 ## Author
+
+**Abdelkerim Mahamat Habib**
 
 Created as part of the **FlyRank AI Backend Engineering Internship**.
