@@ -10,6 +10,20 @@ servers:
 
 paths:
 
+  /:
+    get:
+      summary: API information
+      responses:
+        '200':
+          description: API information returned successfully
+
+  /health:
+    get:
+      summary: Health check
+      responses:
+        '200':
+          description: API is running
+
   /tasks:
 
     get:
@@ -26,9 +40,12 @@ paths:
           application/json:
             schema:
               type: object
+              required:
+                - title
               properties:
                 title:
                   type: string
+                  example: Learn Docker
 
       responses:
         '201':
@@ -38,35 +55,47 @@ paths:
 
     get:
       summary: Get one task
-
       parameters:
         - name: id
           in: path
           required: true
           schema:
             type: integer
-
       responses:
         '200':
           description: Success
+        '404':
+          description: Task not found
 
     put:
       summary: Update a task
-
       parameters:
         - name: id
           in: path
           required: true
           schema:
             type: integer
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                done:
+                  type: boolean
 
       responses:
         '200':
           description: Updated
+        '404':
+          description: Task not found
 
     delete:
       summary: Delete a task
-
       parameters:
         - name: id
           in: path
@@ -77,3 +106,5 @@ paths:
       responses:
         '204':
           description: Deleted
+        '404':
+          description: Task not found
